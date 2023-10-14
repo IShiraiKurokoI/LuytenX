@@ -11,6 +11,7 @@ import java.io.File;
  */
 public class LuytenOsx extends Luyten {
     public static void main(String[] args) {
+        System.setProperty("sun.java2d.d3d", "false");
         // Add an adapter as the handler to a new instance of the application
         // class
         @SuppressWarnings("deprecation")
@@ -20,12 +21,12 @@ public class LuytenOsx extends Luyten {
                 Luyten.addToPendingFiles(new File(e.getFilename()));
                 Luyten.processPendingFiles();
             }
-            
+
             public void handleQuit(ApplicationEvent e) {
                 Luyten.quitInstance();
             }
         });
-        
+
         // Call the superclass's main function
         Luyten.main(args);
     }

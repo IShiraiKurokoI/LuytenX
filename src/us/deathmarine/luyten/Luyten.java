@@ -25,37 +25,38 @@ import java.util.concurrent.atomic.AtomicReference;
  * Starter, the main class
  */
 public class Luyten {
-    
+
     private static final AtomicReference<MainWindow> mainWindowRef = new AtomicReference<>();
     private static final List<File> pendingFiles = new ArrayList<>();
     private static ServerSocket lockSocket = null;
-    
+
     public static void main(final String[] args) {
+        System.setProperty("sun.java2d.d3d", "false");
         try {
             LafManager.setTheme(new OneDarkTheme());
             LafManager.install();
-            
+
             //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         // for TotalCommander External Viewer setting:
         // javaw -jar "c:\Program Files\Luyten\luyten.jar"
         // (TC will not complain about temporary file when opening .class from
         // .zip or .jar)
         final File fileFromCommandLine = getFileFromCommandLine(args);
-        
+
         try {
             launchMainInstance(fileFromCommandLine);
         } catch (Exception ignored) {
         }
     }
-    
+
     private static void launchMainInstance(final File fileFromCommandLine) {
         launchSession(fileFromCommandLine);
     }
-    
+
     private static void launchSession(final File fileFromCommandLine) {
         SwingUtilities.invokeLater(() -> {
             if (!mainWindowRef.compareAndSet(null, new MainWindow(fileFromCommandLine))) {
@@ -66,7 +67,7 @@ public class Luyten {
             mainWindowRef.get().setVisible(true);
         });
     }
-    
+
     // Private function which processes all pending files - synchronized on the
     // list of pending files
     public static void processPendingFiles() {
@@ -80,7 +81,7 @@ public class Luyten {
             }
         }
     }
-    
+
     // Function which opens the given file in the instance, if it's running -
     // and if not, it processes the files
     public static void addToPendingFiles(File fileToOpen) {
@@ -90,7 +91,7 @@ public class Luyten {
             }
         }
     }
-    
+
     // Function which exits the application if it's running
     public static void quitInstance() {
         final MainWindow mainWindow = mainWindowRef.get();
@@ -98,7 +99,7 @@ public class Luyten {
             mainWindow.onExitMenu();
         }
     }
-    
+
     public static File getFileFromCommandLine(String... args) {
         File fileFromCommandLine = null;
         try {
@@ -111,11 +112,11 @@ public class Luyten {
         }
         return fileFromCommandLine;
     }
-    
+
     public static String getVersion() {
         return "0.8.1";
     }
-    
+
     /**
      * Method allows for users to copy the stacktrace for reporting any issues.
      * Add Cool Hyperlink Enhanced for mouse users.
@@ -135,7 +136,7 @@ public class Luyten {
             e1.printStackTrace();
         }
         System.out.println(stacktrace);
-        
+
         JPanel pane = new JPanel();
         pane.setLayout(new BoxLayout(pane, BoxLayout.PAGE_AXIS));
         if (message.contains("\n")) {
@@ -165,7 +166,7 @@ public class Luyten {
                             menuitem.addActionListener(new DefaultEditorKit.CopyAction());
                             this.add(menuitem);
                         }
-                        
+
                         private static final long serialVersionUID = 562054483562666832L;
                     }.show(e.getComponent(), e.getX(), e.getY());
                 }
@@ -187,12 +188,12 @@ public class Luyten {
                     e1.printStackTrace();
                 }
             }
-            
+
             @Override
             public void mouseEntered(MouseEvent e) {
                 link.setText("<HTML>Submit to <FONT color=\"#3498db\"><U>" + issue + "</U></FONT></HTML>");
             }
-            
+
             @Override
             public void mouseExited(MouseEvent e) {
                 link.setText("<HTML>Submit to <FONT color=\"#3498db\"><U>" + issue + "</U></FONT></HTML>");
