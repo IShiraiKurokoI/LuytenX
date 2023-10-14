@@ -1,31 +1,24 @@
-LuytenX
+LuytenX 汉化修复版
 ======
 
-This is a fork of [Luyten](https://github.com/deathmarine/Luyten) including a default dark mode (Atom One Dark), and a ton of code improvements.
+这是 [LuytenX](https://github.com/ByteZ1337/LuytenX) 的一个分支，修复了d3d加速导致UI错位的问题并进行了汉化。
 
-Planned features are:
+Procyon 和 CFR 的反编译器 Gui
 
-* More themes
-* Krakatau disassembler
+根据 Apache 2.0 版许可
 
-**Still not one of the best**
-
-Decompiler Gui for Procyon and CFR
-
-Licensed under Apache Version 2.0
-
-## Compilation
+## 编译
 
 *****
 
-* Install [Maven 3](https://maven.apache.org/download.html)
-* Clone this repo and: `mvn clean install`
+* 安装[Maven 3](https://maven.apache.org/download.html)
+* 克隆此存储库并：`mvn clean install`
 
-## Screenshot
+## 屏幕截图
 
-![Screen](https://i.imgur.com/2XfQQBc.png)
+![Screen](/screenshot.png)
 
-## Powered by
+## 使用的第三方开源项目
 
 *****
 
