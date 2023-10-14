@@ -35,7 +35,7 @@ public class FileDialog {
                 Thread.sleep(500);
                 initSaveDialog();
             } catch (Exception e) {
-                Luyten.showExceptionDialog("Exception!", e);
+                Luyten.showExceptionDialog("发生异常！", e);
             }
         }).start();
     }

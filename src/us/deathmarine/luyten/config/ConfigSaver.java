@@ -95,7 +95,7 @@ public class ConfigSaver {
             findWindowPosition = loadWindowPosition(prefs, FIND_WINDOW_ID_PREFIX);
             luytenPreferences = loadLuytenPreferences(prefs);
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
     
@@ -158,7 +158,7 @@ public class ConfigSaver {
             saveWindowPosition(prefs, FIND_WINDOW_ID_PREFIX, findWindowPosition);
             saveLuytenPreferences(prefs);
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
     

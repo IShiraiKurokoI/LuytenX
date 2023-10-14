@@ -38,7 +38,7 @@ public class FindAllBox extends JDialog {
     private static final long serialVersionUID = -4125409760166690462L;
     private static final int MIN_WIDTH = 640;
     private boolean searching;
-    
+
     private JButton findButton;
     private JTextField textField;
     private JCheckBox mcase;
@@ -48,34 +48,34 @@ public class FindAllBox extends JDialog {
     private JList<String> list;
     private JProgressBar progressBar;
     boolean locked;
-    
+
     private JLabel statusLabel = new JLabel("");
-    
+
     private DefaultListModel<String> classesList = new DefaultListModel<>();
-    
+
     private Thread tmp_thread;
-    
+
     private MainWindow mainWindow;
-    
+
     public FindAllBox(final MainWindow mainWindow) {
         this.setDefaultCloseOperation(HIDE_ON_CLOSE);
         this.setHideOnEscapeButton();
-        
+
         progressBar = new JProgressBar(0, 100);
         this.mainWindow = mainWindow;
-        
-        JLabel label = new JLabel("Find What:");
+
+        JLabel label = new JLabel("查找内容:");
         textField = new JTextField();
-        findButton = new JButton("Find");
+        findButton = new JButton("查找");
         findButton.addActionListener(new FindButton());
-        
-        mcase = new JCheckBox("Match Case");
-        regex = new JCheckBox("Regex");
-        wholew = new JCheckBox("Whole Words");
-        classname = new JCheckBox("Classnames");
-        
+
+        mcase = new JCheckBox("匹配大小写");
+        regex = new JCheckBox("正则表达式");
+        wholew = new JCheckBox("匹配单词");
+        classname = new JCheckBox("包括类名");
+
         this.getRootPane().setDefaultButton(findButton);
-        
+
         list = new JList<>(classesList);
         list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
         list.setLayoutOrientation(JList.VERTICAL_WRAP);
@@ -95,9 +95,9 @@ public class FindAllBox extends JDialog {
                             mainWindow.getSelectedModel().extractClassToTextPane(type, array[array.length - 1], entryName,
                                 null);
                         } catch (Exception e) {
-                            Luyten.showExceptionDialog("Exception!", e);
+                            Luyten.showExceptionDialog("发生异常！", e);
                         }
-                        
+
                     } else {
                         try {
                             JarFile jfile = new JarFile(mainWindow.getSelectedModel().getOpenedFile());
@@ -109,14 +109,14 @@ public class FindAllBox extends JDialog {
                             e.printStackTrace();
                         }
                     }
-                    
+
                 }
             }
         });
         list.setLayoutOrientation(JList.VERTICAL);
         JScrollPane listScroller = new JScrollPane(list, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        
+
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int width = (int) (screenSize.width * 0.35);
         if (width < MIN_WIDTH) {
@@ -127,12 +127,12 @@ public class FindAllBox extends JDialog {
         final int y = (int) (center.height * 0.2);
         this.setBounds(x, y, center.width, center.height);
         this.setResizable(false);
-        
+
         GroupLayout layout = new GroupLayout(getRootPane());
         getRootPane().setLayout(layout);
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
-        
+
         layout.setHorizontalGroup(
             layout.createSequentialGroup().addComponent(label)
                 .addGroup(
@@ -148,9 +148,9 @@ public class FindAllBox extends JDialog {
                             .addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(listScroller)
                                 .addComponent(progressBar))))
                 .addGroup(layout.createParallelGroup(Alignment.LEADING).addComponent(findButton))
-        
+
         );
-        
+
         layout.linkSize(SwingConstants.HORIZONTAL, findButton);
         layout.setVerticalGroup(layout.createSequentialGroup()
             .addGroup(layout.createParallelGroup(Alignment.BASELINE).addComponent(label).addComponent(textField)
@@ -164,25 +164,25 @@ public class FindAllBox extends JDialog {
             .addComponent(progressBar));
         this.adjustWindowPositionBySavedState();
         this.setSaveWindowPositionOnClosing();
-        
+
         this.setName("Find All");
         this.setTitle("Find All");
     }
-    
+
     private class FindButton extends AbstractAction {
         private static final long serialVersionUID = 75954129199541874L;
-        
+
         @Override
         public void actionPerformed(ActionEvent event) {
             tmp_thread = new Thread(() -> {
-                if (findButton.getText().equals("Stop")) {
+                if (findButton.getText().equals("停止")) {
                     if (tmp_thread != null)
                         tmp_thread.interrupt();
-                    setStatus("Stopped.");
-                    findButton.setText("Find");
+                    setStatus("已停止");
+                    findButton.setText("查找");
                     locked = false;
                 } else {
-                    findButton.setText("Stop");
+                    findButton.setText("停止");
                     classesList.clear();
                     ConfigSaver configSaver = ConfigSaver.getLoadedInstance();
                     DecompilerSettings settings = configSaver.getDecompilerSettings();
@@ -194,7 +194,7 @@ public class FindAllBox extends JDialog {
                         Enumeration<JarEntry> entLength = jfile.entries();
                         initProgressBar(Collections.list(entLength).size());
                         Enumeration<JarEntry> ent = jfile.entries();
-                        while (ent.hasMoreElements() && findButton.getText().equals("Stop")) {
+                        while (ent.hasMoreElements() && findButton.getText().equals("停止")) {
                             JarEntry entry = ent.nextElement();
                             String name = entry.getName();
                             setStatus(name);
@@ -228,7 +228,7 @@ public class FindAllBox extends JDialog {
                                             addClassName(entry.getName());
                                     }
                                 } else {
-                                    
+
                                     StringBuilder sb = new StringBuilder();
                                     long nonprintableCharactersCount = 0;
                                     try (InputStreamReader inputStreamReader = new InputStreamReader(
@@ -237,13 +237,13 @@ public class FindAllBox extends JDialog {
                                         String line;
                                         while ((line = reader.readLine()) != null) {
                                             sb.append(line).append("\n");
-                                            
+
                                             for (byte nextByte : line.getBytes()) {
                                                 if (nextByte <= 0) {
                                                     nonprintableCharactersCount++;
                                                 }
                                             }
-                                            
+
                                         }
                                     }
                                     if (nonprintableCharactersCount < 5 && search(sb.toString()))
@@ -252,25 +252,25 @@ public class FindAllBox extends JDialog {
                             }
                         }
                         setSearching(false);
-                        if (findButton.getText().equals("Stop")) {
-                            setStatus("Done.");
-                            findButton.setText("Find");
+                        if (findButton.getText().equals("停止")) {
+                            setStatus("完成");
+                            findButton.setText("查找");
                             locked = false;
                         }
                         jfile.close();
                         locked = false;
                     } catch (Exception e) {
-                        Luyten.showExceptionDialog("Exception!", e);
+                        Luyten.showExceptionDialog("发生异常！", e);
                     }
-                    
+
                 }
             });
             tmp_thread.start();
-            
+
         }
-        
+
     }
-    
+
     private boolean search(String bulk) {
         String a = textField.getText();
         String b = bulk;
@@ -284,30 +284,30 @@ public class FindAllBox extends JDialog {
         }
         return b.contains(a);
     }
-    
+
     private void setHideOnEscapeButton() {
         Action escapeAction = new AbstractAction() {
             private static final long serialVersionUID = 6846566740472934801L;
-            
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 FindAllBox.this.setVisible(false);
             }
         };
-        
+
         KeyStroke escapeKeyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
         this.getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escapeKeyStroke, "ESCAPE");
         this.getRootPane().getActionMap().put("ESCAPE", escapeAction);
     }
-    
+
     private void adjustWindowPositionBySavedState() {
         WindowPosition windowPosition = ConfigSaver.getLoadedInstance().getFindWindowPosition();
-        
+
         if (windowPosition.isSavedWindowPositionValid()) {
             this.setLocation(windowPosition.getWindowX(), windowPosition.getWindowY());
         }
     }
-    
+
     private void setSaveWindowPositionOnClosing() {
         this.addWindowListener(new WindowAdapter() {
             @Override
@@ -317,40 +317,40 @@ public class FindAllBox extends JDialog {
             }
         });
     }
-    
+
     public void showFindBox() {
         this.setVisible(true);
         this.textField.requestFocus();
     }
-    
+
     public void hideFindBox() {
         this.setVisible(false);
     }
-    
+
     public void setStatus(String text) {
         if (text.length() > 25) {
-            this.statusLabel.setText("Searching in file: ..." + text.substring(text.length() - 25));
+            this.statusLabel.setText("在文件中查找: ..." + text.substring(text.length() - 25));
         } else {
-            this.statusLabel.setText("Searching in file: " + text);
+            this.statusLabel.setText("在文件中查找: " + text);
         }
-        
+
         progressBar.setValue(progressBar.getValue() + 1);
     }
-    
+
     public void addClassName(String className) {
         this.classesList.addElement(className);
     }
-    
+
     public void initProgressBar(Integer length) {
         progressBar.setMaximum(length);
         progressBar.setValue(0);
         progressBar.setStringPainted(true);
     }
-    
+
     public boolean isSearching() {
         return searching;
     }
-    
+
     public void setSearching(boolean searching) {
         this.searching = searching;
     }

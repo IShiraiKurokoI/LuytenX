@@ -114,7 +114,7 @@ public class Luyten {
     }
 
     public static String getVersion() {
-        return "0.8.1";
+        return "0.9.0";
     }
 
     /**
@@ -156,13 +156,13 @@ public class Luyten {
                 if (SwingUtilities.isRightMouseButton(e)) {
                     new JPopupMenu() {
                         {
-                            JMenuItem menuitem = new JMenuItem("Select All");
+                            JMenuItem menuitem = new JMenuItem("全选");
                             menuitem.addActionListener(e12 -> {
                                 exception.requestFocus();
                                 exception.selectAll();
                             });
                             this.add(menuitem);
-                            menuitem = new JMenuItem("Copy");
+                            menuitem = new JMenuItem("复制");
                             menuitem.addActionListener(new DefaultEditorKit.CopyAction());
                             this.add(menuitem);
                         }
@@ -173,11 +173,11 @@ public class Luyten {
             }
         });
         JScrollPane scroll = new JScrollPane(exception);
-        scroll.setBorder(new CompoundBorder(BorderFactory.createTitledBorder("Stacktrace"),
+        scroll.setBorder(new CompoundBorder(BorderFactory.createTitledBorder("栈跟踪"),
             new BevelBorder(BevelBorder.LOWERED)));
         pane.add(scroll);
-        final String issue = "https://github.com/ByteZ1337/LuytenX/issues";
-        final JLabel link = new JLabel("<HTML>Submit to <FONT color=\"#3498db\"><U>" + issue + "</U></FONT></HTML>");
+        final String issue = "https://github.com/IShiraiKurokoI/LuytenX/issues";
+        final JLabel link = new JLabel("<HTML>提交至<FONT color=\"#3498db\"><U>" + issue + "</U></FONT></HTML>");
         link.setCursor(new Cursor(Cursor.HAND_CURSOR));
         link.addMouseListener(new MouseAdapter() {
             @Override
@@ -191,15 +191,15 @@ public class Luyten {
 
             @Override
             public void mouseEntered(MouseEvent e) {
-                link.setText("<HTML>Submit to <FONT color=\"#3498db\"><U>" + issue + "</U></FONT></HTML>");
+                link.setText("<HTML>提交至<FONT color=\"#3498db\"><U>" + issue + "</U></FONT></HTML>");
             }
 
             @Override
             public void mouseExited(MouseEvent e) {
-                link.setText("<HTML>Submit to <FONT color=\"#3498db\"><U>" + issue + "</U></FONT></HTML>");
+                link.setText("<HTML>提交至<FONT color=\"#3498db\"><U>" + issue + "</U></FONT></HTML>");
             }
         });
         pane.add(link);
-        JOptionPane.showMessageDialog(null, pane, "Error!", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, pane, "错误!", JOptionPane.ERROR_MESSAGE);
     }
 }

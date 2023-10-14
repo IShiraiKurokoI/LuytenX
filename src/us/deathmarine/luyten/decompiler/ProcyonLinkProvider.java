@@ -48,7 +48,7 @@ public class ProcyonLinkProvider implements LinkProvider {
                         }
                     }
                 } catch (Exception e) {
-                    Luyten.showExceptionDialog("Exception!", e);
+                    Luyten.showExceptionDialog("发生异常！", e);
                 }
             }
             
@@ -82,7 +82,7 @@ public class ProcyonLinkProvider implements LinkProvider {
                         }
                     }
                 } catch (Exception e) {
-                    Luyten.showExceptionDialog("Exception!", e);
+                    Luyten.showExceptionDialog("发生异常！", e);
                 }
             }
         };
@@ -349,7 +349,7 @@ public class ProcyonLinkProvider implements LinkProvider {
             }
         } catch (Exception e) {
             readableLink = null;
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
         return readableLink;
     }

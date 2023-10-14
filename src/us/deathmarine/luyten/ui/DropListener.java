@@ -42,7 +42,7 @@ public class DropListener implements DropTargetListener {
                         }
                     }
                 } catch (Exception e) {
-                    Luyten.showExceptionDialog("Exception!", e);
+                    Luyten.showExceptionDialog("发生异常！", e);
                 }
             }
             event.dropComplete(true);

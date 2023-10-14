@@ -22,7 +22,7 @@ public class DirPreferences {
                 }
             }
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
     
@@ -33,7 +33,7 @@ public class DirPreferences {
                 luytenPrefs.setFileOpenCurrentDirectory(currentDir.getAbsolutePath());
             }
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
     
@@ -47,7 +47,7 @@ public class DirPreferences {
                 }
             }
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
     
@@ -58,7 +58,7 @@ public class DirPreferences {
                 luytenPrefs.setFileSaveCurrentDirectory(currentDir.getAbsolutePath());
             }
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
 }

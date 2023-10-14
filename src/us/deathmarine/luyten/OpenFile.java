@@ -34,54 +34,54 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class OpenFile implements SyntaxConstants {
-    
+
     public static final HashSet<String> WELL_KNOWN_TEXT_FILE_EXTENSIONS = new HashSet<>(
         Arrays.asList(".java", ".xml", ".rss", ".project", ".classpath", ".h", ".c", ".cpp", ".yaml", ".yml", ".ini", ".sql", ".js", ".php", ".php5",
             ".phtml", ".xhtm", ".xhtml", ".lua", ".bat", ".pl", ".sh", ".json", ".txt",
             ".rb", ".make", ".mak", ".py", ".properties", ".prop", ".MF"));
     public static final HashSet<String> WELL_KNOWN_IMAGE_FILE_EXTENSIONS = new HashSet<>(
         Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".svg"));
-    
+
     // navigation links
     private TreeMap<Selection, String> selectionToUniqueStrTreeMap = new TreeMap<>();
     private Map<String, Boolean> isNavigableCache = new ConcurrentHashMap<>();
     private Map<String, String> readableLinksCache = new ConcurrentHashMap<>();
-    
+
     private volatile boolean isContentValid = false;
     private volatile boolean isNavigationLinksValid = false;
     private volatile boolean isWaitForLinksCursor = false;
     private volatile Double lastScrollPercent = null;
-    
+
     private LinkProvider linkProvider;
     private String initialNavigationLink;
     private boolean isFirstTimeRun = true;
-    
+
     MainWindow mainWindow;
     OverlayScrollPane scrollPane;
     Panel image_pane;
     RSyntaxTextArea textArea;
     String name;
     String path;
-    
+
     private ConfigSaver configSaver;
     private LuytenPreferences luytenPrefs;
-    
+
     // decompiler and type references (not needed for text files)
     private MetadataSystem metadataSystem;
     private DecompilerSettings settings;
     private DecompilationOptions decompilationOptions;
     private TypeDefinition type;
     private final Model model;
-    
+
     public OpenFile(String name, String path, Theme theme, final MainWindow mainWindow, Model model) {
         this.name = name;
         this.path = path;
         this.mainWindow = mainWindow;
         this.model = model;
-        
+
         configSaver = ConfigSaver.getLoadedInstance();
         luytenPrefs = configSaver.getLuytenPreferences();
-        
+
         textArea = new RSyntaxTextArea(25, 70);
         textArea.setCaretPosition(0);
         textArea.requestFocusInWindow();
@@ -90,7 +90,7 @@ public class OpenFile implements SyntaxConstants {
         textArea.setEditable(false);
         textArea.setAntiAliasingEnabled(true);
         textArea.setCodeFoldingEnabled(true);
-        
+
         if (name.toLowerCase().endsWith(".class") || name.toLowerCase().endsWith(".java"))
             textArea.setSyntaxEditingStyle(SYNTAX_STYLE_JAVA);
         else if (name.toLowerCase().endsWith(".xml") || name.toLowerCase().endsWith(".rss")
@@ -135,13 +135,13 @@ public class OpenFile implements SyntaxConstants {
         else
             textArea.setSyntaxEditingStyle(SYNTAX_STYLE_NONE);
         scrollPane = new OverlayScrollPane(new RTextScrollPane(textArea, true));
-        
+
         textArea.setText("");
-        
+
         // Edit RTextArea's PopupMenu
         JPopupMenu pop = textArea.getPopupMenu();
         pop.addSeparator();
-        JMenuItem item = new JMenuItem("Font");
+        JMenuItem item = new JMenuItem("字体");
         item.addActionListener(e -> {
             JFontChooser fontChooser = new JFontChooser();
             fontChooser.setSelectedFont(textArea.getFont());
@@ -154,11 +154,11 @@ public class OpenFile implements SyntaxConstants {
         });
         pop.add(item);
         textArea.setPopupMenu(pop);
-        
+
         theme.apply(textArea);
-        
+
         textArea.setFont(new Font(textArea.getFont().getName(), textArea.getFont().getStyle(), luytenPrefs.getFont_size()));
-        
+
         scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         final JScrollBar verticalScrollbar = scrollPane.getVerticalScrollBar();
         if (verticalScrollbar != null) {
@@ -173,10 +173,10 @@ public class OpenFile implements SyntaxConstants {
                 lastScrollPercent = (((double) scrollValue) / ((double) scrollMax));
             });
         }
-        
+
         textArea.setHyperlinksEnabled(true);
         textArea.setLinkScanningMask(Keymap.ctrlDownModifier());
-        
+
         textArea.setLinkGenerator((textArea, offs) -> {
             final String uniqueStr = getUniqueStrForOffset(offs);
             final Integer selectionFrom = getSelectionFromForOffset(offs);
@@ -188,7 +188,7 @@ public class OpenFile implements SyntaxConstants {
                             onNavigationClicked(uniqueStr);
                         return null;
                     }
-                    
+
                     @Override
                     public int getSourceOffset() {
                         if (isNavigationLinksValid)
@@ -199,7 +199,7 @@ public class OpenFile implements SyntaxConstants {
             }
             return null;
         });
-        
+
         /*
          * Add Ctrl+Wheel Zoom for Text Size Removes all standard listeners and
          * writes new listeners for wheelscroll movement.
@@ -207,7 +207,7 @@ public class OpenFile implements SyntaxConstants {
         for (MouseWheelListener listeners : scrollPane.getMouseWheelListeners()) {
             scrollPane.removeMouseWheelListener(listeners);
         }
-        
+
         scrollPane.addMouseWheelListener(e -> {
             if (e.getWheelRotation() == 0) {
                 // Nothing to do here. This happens when scroll event is delivered from a touchbar
@@ -216,7 +216,7 @@ public class OpenFile implements SyntaxConstants {
                 // See https://github.com/JetBrains/intellij-community/blob/21c99af7c78fc82aefc4d05646389f4991b08b38/bin/idea.properties#L133-L156
                 return;
             }
-            
+
             if ((e.getModifiersEx() & Keymap.ctrlDownModifier()) != 0) {
                 Font font = textArea.getFont();
                 int size = font.getSize();
@@ -239,7 +239,7 @@ public class OpenFile implements SyntaxConstants {
                         orientation = SwingConstants.HORIZONTAL;
                     }
                     e.consume();
-                    
+
                     if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
                         JViewport vp = scrollPane.getScrollPane().getViewport();
                         if (vp == null) {
@@ -256,7 +256,7 @@ public class OpenFile implements SyntaxConstants {
                             boolean leftToRight = comp.getComponentOrientation().isLeftToRight();
                             int scrollMin = toScroll.getMinimum();
                             int scrollMax = toScroll.getMaximum() - toScroll.getModel().getExtent();
-                            
+
                             if (limitScroll) {
                                 int blockIncr = scrollComp.getScrollableBlockIncrement(viewRect, orientation,
                                     direction);
@@ -266,7 +266,7 @@ public class OpenFile implements SyntaxConstants {
                                     scrollMax = Math.min(scrollMax, toScroll.getValue() + blockIncr);
                                 }
                             }
-                            
+
                             for (int i = 0; i < units; i++) {
                                 int unitIncr = scrollComp.getScrollableUnitIncrement(viewRect, orientation,
                                     direction);
@@ -322,7 +322,7 @@ public class OpenFile implements SyntaxConstants {
                         } else {
                             int delta;
                             int limit = -1;
-                            
+
                             if (limitScroll) {
                                 if (direction < 0) {
                                     limit = toScroll.getValue() - toScroll.getBlockIncrement(direction);
@@ -330,7 +330,7 @@ public class OpenFile implements SyntaxConstants {
                                     limit = toScroll.getValue() + toScroll.getBlockIncrement(direction);
                                 }
                             }
-                            
+
                             for (int i = 0; i < units; i++) {
                                 if (direction > 0) {
                                     delta = toScroll.getUnitIncrement(direction);
@@ -356,7 +356,7 @@ public class OpenFile implements SyntaxConstants {
                                 }
                                 toScroll.setValue(newValue);
                             }
-                            
+
                         }
                     } else if (e.getScrollType() == MouseWheelEvent.WHEEL_BLOCK_SCROLL) {
                         int oldValue = toScroll.getValue();
@@ -372,14 +372,14 @@ public class OpenFile implements SyntaxConstants {
                     }
                 }
             }
-            
+
             e.consume();
         });
-        
+
         textArea.addMouseMotionListener(new MouseMotionAdapter() {
             private boolean isLinkLabelPrev = false;
             private String prevLinkText = null;
-            
+
             @Override
             public synchronized void mouseMoved(MouseEvent e) {
                 String linkText = null;
@@ -394,23 +394,23 @@ public class OpenFile implements SyntaxConstants {
                 } else if (textArea.getCursor().getType() == Cursor.WAIT_CURSOR) {
                     textArea.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 }
-                
+
                 JLabel label = OpenFile.this.mainWindow.getLabel();
-                
+
                 if (isLinkLabel && isLinkLabelPrev) {
                     if (!linkText.equals(prevLinkText)) {
                         setLinkLabel(label, linkText);
                     }
                 } else if (isLinkLabel) {
                     setLinkLabel(label, linkText);
-                    
+
                 } else if (isLinkLabelPrev) {
                     setLinkLabel(label, null);
                 }
                 isLinkLabelPrev = isLinkLabel;
                 prevLinkText = linkText;
             }
-            
+
             private void setLinkLabel(JLabel label, String text) {
                 String current = label.getText();
                 if (text == null && current != null)
@@ -418,7 +418,7 @@ public class OpenFile implements SyntaxConstants {
                         return;
                 label.setText(text != null ? text : "Complete");
             }
-            
+
             @SuppressWarnings("deprecation")
             private String createLinkLabel(MouseEvent e) {
                 int offs = textArea.viewToModel(e.getPoint());
@@ -429,11 +429,11 @@ public class OpenFile implements SyntaxConstants {
             }
         });
     }
-    
+
     public void setContent(String content) {
         textArea.setText(content);
     }
-    
+
     public void decompile() {
         this.invalidateContent();
         // synchronized: do not accept changes from menu while running
@@ -447,12 +447,12 @@ public class OpenFile implements SyntaxConstants {
             }
         }
     }
-    
+
     private void decompileWithoutLinks() {
         this.invalidateContent();
         isNavigationLinksValid = false;
         textArea.setHyperlinksEnabled(false);
-        
+
         StringWriter stringwriter = new StringWriter();
         PlainTextOutput plainTextOutput = new PlainTextOutput(stringwriter);
         plainTextOutput.setUnicodeOutputEnabled(decompilationOptions.getSettings().isUnicodeOutputEnabled());
@@ -460,7 +460,7 @@ public class OpenFile implements SyntaxConstants {
         setContentPreserveLastScrollPosition(stringwriter.toString());
         this.isContentValid = true;
     }
-    
+
     private void decompileWithNavigationLinks() {
         this.invalidateContent();
         LinkProvider newLinkProvider = luytenPrefs.getDecompiler().linkProviderSupplier.get();
@@ -468,13 +468,13 @@ public class OpenFile implements SyntaxConstants {
             ((ProcyonLinkProvider) newLinkProvider).setDecompilerReferences(metadataSystem, settings, decompilationOptions);
         newLinkProvider.setType(type, model);
         linkProvider = newLinkProvider;
-        
+
         linkProvider.generateContent();
         setContentPreserveLastScrollPosition(linkProvider.getTextContent());
         this.isContentValid = true;
         enableLinks();
     }
-    
+
     private void setContentPreserveLastScrollPosition(final String content) {
         final Double scrollPercent = lastScrollPercent;
         if (scrollPercent != null && initialNavigationLink == null) {
@@ -486,7 +486,7 @@ public class OpenFile implements SyntaxConstants {
             textArea.setText(content);
         }
     }
-    
+
     private void restoreScrollPosition(final double position) {
         SwingUtilities.invokeLater(() -> {
             JScrollBar verticalScrollbar = scrollPane.getVerticalScrollBar();
@@ -501,7 +501,7 @@ public class OpenFile implements SyntaxConstants {
             verticalScrollbar.setValue((int) newScrollValue);
         });
     }
-    
+
     private void enableLinks() {
         if (initialNavigationLink != null) {
             doEnableLinks();
@@ -517,11 +517,11 @@ public class OpenFile implements SyntaxConstants {
             }).start();
         }
     }
-    
+
     private void resetCursor() {
         SwingUtilities.invokeLater(() -> textArea.setCursor(new Cursor(Cursor.DEFAULT_CURSOR)));
     }
-    
+
     private void doEnableLinks() {
         isNavigationLinksValid = false;
         linkProvider.processLinks();
@@ -531,28 +531,28 @@ public class OpenFile implements SyntaxConstants {
         textArea.setHyperlinksEnabled(true);
         warmUpWithFirstLink();
     }
-    
+
     private void warmUpWithFirstLink() {
         if (selectionToUniqueStrTreeMap.keySet().size() > 0) {
             Selection selection = selectionToUniqueStrTreeMap.keySet().iterator().next();
             getLinkDescriptionForOffset(selection.from);
         }
     }
-    
+
     public void clearLinksCache() {
         try {
             isNavigableCache.clear();
             readableLinksCache.clear();
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
-    
+
     private void buildSelectionToUniqueStrTreeMap() {
         TreeMap<Selection, String> treeMap = new TreeMap<>();
         Map<String, Selection> definitionToSelectionMap = linkProvider.getDefinitionToSelectionMap();
         Map<String, Set<Selection>> referenceToSelectionsMap = linkProvider.getReferenceToSelectionsMap();
-        
+
         for (String key : definitionToSelectionMap.keySet()) {
             Selection selection = definitionToSelectionMap.get(key);
             treeMap.put(selection, key);
@@ -564,7 +564,7 @@ public class OpenFile implements SyntaxConstants {
         }
         selectionToUniqueStrTreeMap = treeMap;
     }
-    
+
     private Selection getSelectionForOffset(int offset) {
         if (isNavigationLinksValid) {
             Selection offsetSelection = new Selection(offset, offset);
@@ -575,7 +575,7 @@ public class OpenFile implements SyntaxConstants {
         }
         return null;
     }
-    
+
     private String getUniqueStrForOffset(int offset) {
         Selection selection = getSelectionForOffset(offset);
         if (selection != null) {
@@ -586,7 +586,7 @@ public class OpenFile implements SyntaxConstants {
         }
         return null;
     }
-    
+
     private Integer getSelectionFromForOffset(int offset) {
         Selection selection = getSelectionForOffset(offset);
         if (selection != null) {
@@ -594,46 +594,46 @@ public class OpenFile implements SyntaxConstants {
         }
         return null;
     }
-    
+
     private String getLinkDescriptionForOffset(int offset) {
         String uniqueStr = getUniqueStrForOffset(offset);
         if (uniqueStr != null)
             return this.getLinkDescription(uniqueStr);
         return null;
     }
-    
+
     private boolean isLinkNavigable(String uniqueStr) {
         try {
             Boolean isNavigableCached = isNavigableCache.get(uniqueStr);
             if (isNavigableCached != null)
                 return isNavigableCached;
-            
+
             boolean isNavigable = linkProvider.isLinkNavigable(uniqueStr);
             isNavigableCache.put(uniqueStr, isNavigable);
             return isNavigable;
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
         return false;
     }
-    
+
     private String getLinkDescription(String uniqueStr) {
         try {
             String descriptionCached = readableLinksCache.get(uniqueStr);
             if (descriptionCached != null)
                 return descriptionCached;
-            
+
             String description = linkProvider.getLinkDescription(uniqueStr);
             if (description != null && description.trim().length() > 0) {
                 readableLinksCache.put(uniqueStr, description);
                 return description;
             }
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
         return null;
     }
-    
+
     private void onNavigationClicked(String clickedReferenceUniqueStr) {
         if (isLocallyNavigable(clickedReferenceUniqueStr)) {
             onLocalNavigationRequest(clickedReferenceUniqueStr);
@@ -652,20 +652,20 @@ public class OpenFile implements SyntaxConstants {
             label.setText("Cannot navigate: " + destinationTypeStr.replaceAll("/", "."));
         }
     }
-    
+
     private boolean isLocallyNavigable(String uniqueStr) {
         return linkProvider.getDefinitionToSelectionMap().containsKey(uniqueStr);
     }
-    
+
     private void onLocalNavigationRequest(String uniqueStr) {
         try {
             Selection selection = linkProvider.getDefinitionToSelectionMap().get(uniqueStr);
             doLocalNavigation(selection);
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
-    
+
     private void doLocalNavigation(Selection selection) {
         try {
             textArea.requestFocusInWindow();
@@ -678,10 +678,10 @@ public class OpenFile implements SyntaxConstants {
                 textArea.setSelectionEnd(0);
             }
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         }
     }
-    
+
     private void scrollToSelection(final int selectionBeginningOffset) {
         SwingUtilities.invokeLater(() -> {
             try {
@@ -692,7 +692,7 @@ public class OpenFile implements SyntaxConstants {
                 int upperMarginToScroll = Math.round(viewportLineCount * 0.29f);
                 int upperLineToSet = selectionLineNum - upperMarginToScroll;
                 int currentUpperLine = textArea.getVisibleRect().y / textArea.getLineHeight();
-                
+
                 if (selectionLineNum <= currentUpperLine + 2
                     || selectionLineNum >= currentUpperLine + viewportLineCount - 4) {
                     Rectangle rectToScroll = new Rectangle();
@@ -703,38 +703,38 @@ public class OpenFile implements SyntaxConstants {
                     textArea.scrollRectToVisible(rectToScroll);
                 }
             } catch (Exception e) {
-                Luyten.showExceptionDialog("Exception!", e);
+                Luyten.showExceptionDialog("发生异常！", e);
             }
         });
     }
-    
+
     private void onOutboundNavigationRequest(String uniqueStr) {
         mainWindow.onNavigationRequest(uniqueStr);
     }
-    
+
     public void setDecompilerReferences(MetadataSystem metadataSystem, DecompilerSettings settings,
                                         DecompilationOptions decompilationOptions) {
         this.metadataSystem = metadataSystem;
         this.settings = settings;
         this.decompilationOptions = decompilationOptions;
     }
-    
+
     public TypeDefinition getType() {
         return type;
     }
-    
+
     public void setType(TypeDefinition type) {
         this.type = type;
     }
-    
+
     public Model getModel() {
         return model;
     }
-    
+
     public boolean isContentValid() {
         return isContentValid;
     }
-    
+
     public void invalidateContent() {
         try {
             this.setContent("");
@@ -743,15 +743,15 @@ public class OpenFile implements SyntaxConstants {
             this.isNavigationLinksValid = false;
         }
     }
-    
+
     public void resetScrollPosition() {
         lastScrollPercent = null;
     }
-    
+
     public void setInitialNavigationLink(String initialNavigationLink) {
         this.initialNavigationLink = initialNavigationLink;
     }
-    
+
     public void onAddedToScreen() {
         try {
             if (initialNavigationLink != null) {
@@ -765,7 +765,7 @@ public class OpenFile implements SyntaxConstants {
             initialNavigationLink = null;
         }
     }
-    
+
     /**
      * sun.swing.CachedPainter holds on OpenFile for a while even after
      * JTabbedPane.remove(component)
@@ -776,7 +776,7 @@ public class OpenFile implements SyntaxConstants {
         invalidateContent();
         clearLinksCache();
     }
-    
+
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -784,7 +784,7 @@ public class OpenFile implements SyntaxConstants {
         result = prime * result + ((path == null) ? 0 : path.hashCode());
         return result;
     }
-    
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj)
@@ -799,5 +799,5 @@ public class OpenFile implements SyntaxConstants {
         } else
             return path.equals(other.path);
     }
-    
+
 }

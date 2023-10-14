@@ -44,7 +44,7 @@ public class VineflowerLinkProvider implements LinkProvider, IBytecodeProvider, 
             fernflower.addSource(singletonJar);
             fernflower.decompileContext();
         } catch (Exception e) {
-            Luyten.showExceptionDialog("Exception!", e);
+            Luyten.showExceptionDialog("发生异常！", e);
         } finally {
             fernflower.clearContext();
             if (singletonJar != null)
