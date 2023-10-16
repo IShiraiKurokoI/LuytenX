@@ -113,13 +113,17 @@ public class Model extends JSplitPane {
         panel2.add(new JScrollPane(tree));
 
         house = new JTabbedPane();
-        house.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        house.setTabLayoutPolicy(JTabbedPane.WRAP_TAB_LAYOUT);
         house.addChangeListener(new TabChangeListener());
         house.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (SwingUtilities.isMiddleMouseButton(e)) {
-                    closeOpenTab(house.getSelectedIndex());
+                    //修复中键关闭代码tab
+                    int tabIndex = house.indexAtLocation(e.getX(), e.getY());
+                    if (tabIndex!=-1){
+                        closeOpenTab(tabIndex);
+                    }
                 }
             }
         });
