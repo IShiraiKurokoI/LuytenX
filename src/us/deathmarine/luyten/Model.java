@@ -1,6 +1,10 @@
 package us.deathmarine.luyten;
 
+import com.github.weisj.darklaf.LafManager;
 import com.github.weisj.darklaf.components.OverlayScrollPane;
+import com.github.weisj.darklaf.theme.IntelliJTheme;
+import com.github.weisj.darklaf.theme.OneDarkTheme;
+import com.github.weisj.darklaf.theme.SolarizedLightTheme;
 import com.strobel.assembler.InputTypeLoader;
 import com.strobel.assembler.metadata.*;
 import com.strobel.core.StringUtilities;

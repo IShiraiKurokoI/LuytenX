@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.github.weisj.darklaf.LafManager.getPreferredThemeStyle;
+
 /**
  * Starter, the main class
  */
@@ -33,7 +35,7 @@ public class Luyten {
     public static void main(final String[] args) {
         System.setProperty("sun.java2d.d3d", "false");
         try {
-            LafManager.setTheme(new OneDarkTheme());
+            LafManager.themeForPreferredStyle(getPreferredThemeStyle());
             LafManager.install();
 
             //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

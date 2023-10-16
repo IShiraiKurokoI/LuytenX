@@ -11,7 +11,7 @@ import us.deathmarine.luyten.decompiler.Decompiler;
  */
 public class LuytenPreferences {
     public static final String THEME_XML_PATH = "/org/fife/ui/rsyntaxtextarea/themes/";
-    public static final String DEFAULT_THEME_XML = "onedark.xml";
+    public static final String DEFAULT_THEME_XML = "default.xml";
     public static final Decompiler DEFAULT_DECOMPILER = Decompiler.PROCYON;
 
     private String themeXml = DEFAULT_THEME_XML;

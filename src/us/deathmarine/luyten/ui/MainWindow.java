@@ -1,5 +1,8 @@
 package us.deathmarine.luyten.ui;
 
+import com.github.weisj.darklaf.LafManager;
+import com.github.weisj.darklaf.theme.IntelliJTheme;
+import com.github.weisj.darklaf.theme.OneDarkTheme;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import us.deathmarine.luyten.Luyten;
 import us.deathmarine.luyten.Model;
@@ -393,8 +396,20 @@ public class MainWindow extends JFrame {
     }
 
     public void onThemesChanged() {
+        String xml = luytenPrefs.getThemeXml();
+        if (xml.contains("dark")){
+            if (!(LafManager.getInstalledTheme() instanceof OneDarkTheme)){
+                LafManager.setTheme(new OneDarkTheme());
+                LafManager.install();
+            }
+        }else {
+            if (!(LafManager.getInstalledTheme() instanceof IntelliJTheme)){
+                LafManager.setTheme(new IntelliJTheme());
+                LafManager.install();
+            }
+        }
         for (Model jarModel : jarModels.values()) {
-            jarModel.changeTheme(luytenPrefs.getThemeXml());
+            jarModel.changeTheme(xml);
             luytenPrefs.setFont_size(jarModel.getTheme().baseFont.getSize());
         }
     }
