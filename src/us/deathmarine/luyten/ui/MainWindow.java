@@ -77,8 +77,7 @@ public class MainWindow extends JFrame {
         bar.setVisible(false);
         panel2.setPreferredSize(new Dimension(this.getWidth() / 3, 20));
         panel2.add(bar);
-
-        jarsTabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+        jarsTabbedPane = new JTabbedPane(SwingConstants.TOP, JTabbedPane.WRAP_TAB_LAYOUT);
         jarsTabbedPane.setUI(new BasicTabbedPaneUI() {
             @Override
             protected int calculateTabAreaHeight(int tab_placement, int run_count, int max_tab_height) {
