@@ -30,17 +30,17 @@ import java.util.zip.ZipOutputStream;
  * Performs Save and Save All
  */
 public class FileSaver {
-    
+
     private JProgressBar bar;
     private JLabel label;
     private boolean cancel;
     private boolean extracting;
-    
+
     public FileSaver(JProgressBar bar, JLabel label) {
         this.bar = bar;
         this.label = label;
-        final JPopupMenu menu = new JPopupMenu("Cancel");
-        final JMenuItem item = new JMenuItem("Cancel");
+        final JPopupMenu menu = new JPopupMenu("取消");
+        final JMenuItem item = new JMenuItem("取消");
         item.addActionListener(arg0 -> setCancel(true));
         menu.add(item);
         this.label.addMouseListener(new MouseAdapter() {
@@ -50,7 +50,7 @@ public class FileSaver {
             }
         });
     }
-    
+
     public void saveText(final String text, final File file) {
         new Thread(() -> {
             DecompilerSettings settings = cloneSettings();
@@ -60,31 +60,31 @@ public class FileSaver {
                  OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, StandardCharsets.UTF_8)
                      : new OutputStreamWriter(fos);
                  BufferedWriter bw = new BufferedWriter(writer)) {
-                label.setText("Extracting: " + file.getName());
+                label.setText("正在解压：" + file.getName());
                 bar.setVisible(true);
                 bw.write(text);
                 bw.flush();
-                label.setText("Completed: " + getTime(time));
+                label.setText("完成：" + getTime(time));
             } catch (Exception e1) {
-                label.setText("Cannot save file: " + file.getName());
-                Luyten.showExceptionDialog("Unable to save file!\n", e1);
+                label.setText("无法保存文件：" + file.getName());
+                Luyten.showExceptionDialog("无法保存文件！\n", e1);
             } finally {
                 setExtracting(false);
                 bar.setVisible(false);
             }
         }).start();
     }
-    
+
     public void saveAllDecompiled(final File inFile, final File outFile) {
         new Thread(() -> {
             long time = System.currentTimeMillis();
             try {
                 bar.setVisible(true);
                 setExtracting(true);
-                label.setText("Extracting: " + outFile.getName());
+                label.setText("正在解压：" + outFile.getName());
                 System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
                 String inFileName = inFile.getName().toLowerCase();
-                
+
                 if (inFileName.endsWith(".jar") || inFileName.endsWith(".zip")) {
                     doSaveJarDecompiled(inFile, outFile);
                 } else if (inFileName.endsWith(".class")) {
@@ -93,22 +93,22 @@ public class FileSaver {
                     doSaveUnknownFile(inFile, outFile);
                 }
                 if (cancel) {
-                    label.setText("Cancelled");
+                    label.setText("已取消");
                     outFile.delete();
                     setCancel(false);
                 } else {
-                    label.setText("Completed: " + getTime(time));
+                    label.setText("完成：" + getTime(time));
                 }
             } catch (Exception e1) {
-                label.setText("Cannot save file: " + outFile.getName());
-                Luyten.showExceptionDialog("Unable to save file!\n", e1);
+                label.setText("无法保存文件：" + outFile.getName());
+                Luyten.showExceptionDialog("无法保存文件！\n", e1);
             } finally {
                 setExtracting(false);
                 bar.setVisible(false);
             }
         }).start();
     }
-    
+
     private void doSaveJarDecompiled(File inFile, File outFile) throws Exception {
         try (JarFile jfile = new JarFile(inFile);
              FileOutputStream dest = new FileOutputStream(outFile);
@@ -122,11 +122,11 @@ public class FileSaver {
             MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
             ITypeLoader jarLoader = new JarTypeLoader(jfile);
             typeLoader.getTypeLoaders().add(jarLoader);
-            
+
             DecompilationOptions decompilationOptions = new DecompilationOptions();
             decompilationOptions.setSettings(settings);
             decompilationOptions.setFullDecompilation(true);
-            
+
             List<String> mass;
             JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
             LuytenPreferences luytenPrefs = ConfigSaver.getLoadedInstance().getLuytenPreferences();
@@ -135,7 +135,7 @@ public class FileSaver {
             } else {
                 mass = jarEntryFilter.getAllEntriesFromJar();
             }
-            
+
             Enumeration<JarEntry> ent = jfile.entries();
             Set<String> history = new HashSet<>();
             int tick = 0;
@@ -144,13 +144,13 @@ public class FileSaver {
                 JarEntry entry = ent.nextElement();
                 if (!mass.contains(entry.getName()))
                     continue;
-                label.setText("Extracting: " + entry.getName());
+                label.setText("正在解压：" + entry.getName());
                 bar.setVisible(true);
                 if (entry.getName().endsWith(".class")) {
                     JarEntry etn = new JarEntry(entry.getName().replace(".class", ".java"));
-                    label.setText("Extracting: " + etn.getName());
+                    label.setText("正在解压：" + etn.getName());
                     System.out.println("[SaveAll]: " + etn.getName() + " -> " + outFile.getName());
-                    
+
                     if (history.add(etn.getName())) {
                         out.putNextEntry(etn);
                         try {
@@ -168,8 +168,8 @@ public class FileSaver {
                             settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
                             writer.flush();
                         } catch (Exception e) {
-                            label.setText("Cannot decompile file: " + entry.getName());
-                            Luyten.showExceptionDialog("Unable to Decompile file!\nSkipping file...", e);
+                            label.setText("无法反编译文件：" + entry.getName());
+                            Luyten.showExceptionDialog("无法反编译文件！\n跳过...", e);
                         } finally {
                             out.closeEntry();
                         }
@@ -206,17 +206,17 @@ public class FileSaver {
             }
         }
     }
-    
+
     private void doSaveClassDecompiled(File inFile, File outFile) throws Exception {
         DecompilerSettings settings = cloneSettings();
         LuytenTypeLoader typeLoader = new LuytenTypeLoader();
         MetadataSystem metadataSystem = new MetadataSystem(typeLoader);
         TypeReference type = metadataSystem.lookupType(inFile.getCanonicalPath());
-        
+
         DecompilationOptions decompilationOptions = new DecompilationOptions();
         decompilationOptions.setSettings(settings);
         decompilationOptions.setFullDecompilation(true);
-        
+
         boolean isUnicodeEnabled = decompilationOptions.getSettings().isUnicodeOutputEnabled();
         TypeDefinition resolvedType;
         if (type == null || ((resolvedType = type.resolve()) == null)) {
@@ -227,7 +227,7 @@ public class FileSaver {
         plainTextOutput.setUnicodeOutputEnabled(isUnicodeEnabled);
         settings.getLanguage().decompileType(resolvedType, plainTextOutput, decompilationOptions);
         String decompiledSource = stringwriter.toString();
-        
+
         System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
         try (FileOutputStream fos = new FileOutputStream(outFile);
              OutputStreamWriter writer = isUnicodeEnabled ? new OutputStreamWriter(fos, StandardCharsets.UTF_8)
@@ -237,11 +237,11 @@ public class FileSaver {
             bw.flush();
         }
     }
-    
+
     private void doSaveUnknownFile(File inFile, File outFile) throws Exception {
         try (FileInputStream in = new FileInputStream(inFile); FileOutputStream out = new FileOutputStream(outFile)) {
             System.out.println("[SaveAll]: " + inFile.getName() + " -> " + outFile.getName());
-            
+
             byte[] data = new byte[1024];
             int count;
             while ((count = in.read(data, 0, 1024)) != -1) {
@@ -249,7 +249,7 @@ public class FileSaver {
             }
         }
     }
-    
+
     private DecompilerSettings cloneSettings() {
         DecompilerSettings settings = ConfigSaver.getLoadedInstance().getDecompilerSettings();
         DecompilerSettings newSettings = new DecompilerSettings();
@@ -279,23 +279,23 @@ public class FileSaver {
         }
         return newSettings;
     }
-    
+
     public boolean isCancel() {
         return cancel;
     }
-    
+
     public void setCancel(boolean cancel) {
         this.cancel = cancel;
     }
-    
+
     public boolean isExtracting() {
         return extracting;
     }
-    
+
     public void setExtracting(boolean extracting) {
         this.extracting = extracting;
     }
-    
+
     public static String getTime(long time) {
         long lap = System.currentTimeMillis() - time;
         lap = lap / 1000;
@@ -304,8 +304,8 @@ public class FileSaver {
         long min = ((lap - (hour * 60 * 60)) / 60);
         long sec = ((lap - (hour * 60 * 60) - (min * 60)));
         if (hour > 0)
-            sb.append("Hour:").append(hour).append(" ");
-        sb.append("Min(s): ").append(min).append(" Sec: ").append(sec);
+            sb.append(hour).append("时");
+        sb.append(min).append("分").append(sec).append("秒");
         return sb.toString();
     }
 }

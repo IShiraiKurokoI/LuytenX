@@ -414,9 +414,9 @@ public class OpenFile implements SyntaxConstants {
             private void setLinkLabel(JLabel label, String text) {
                 String current = label.getText();
                 if (text == null && current != null)
-                    if (current.startsWith("Navigating:") || current.startsWith("Cannot navigate:"))
+                    if (current.startsWith("导航至：") || current.startsWith("无法导航至："))
                         return;
-                label.setText(text != null ? text : "Complete");
+                label.setText(text != null ? text : "完成");
             }
 
             @SuppressWarnings("deprecation")
@@ -645,11 +645,11 @@ public class OpenFile implements SyntaxConstants {
                 return;
             String[] linkParts = clickedReferenceUniqueStr.split("\\|");
             if (linkParts.length <= 1) {
-                label.setText("Cannot navigate: " + clickedReferenceUniqueStr);
+                label.setText("无法导航至：" + clickedReferenceUniqueStr);
                 return;
             }
             String destinationTypeStr = linkParts[1];
-            label.setText("Cannot navigate: " + destinationTypeStr.replaceAll("/", "."));
+            label.setText("无法导航至：" + destinationTypeStr.replaceAll("/", "."));
         }
     }
 

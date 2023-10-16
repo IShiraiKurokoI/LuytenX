@@ -311,12 +311,12 @@ public class Model extends JSplitPane {
                     }
                     String entryName = entry.getName();
                     if (entryName.endsWith(".class")) {
-                        getLabel().setText("Extracting: " + name);
+                        getLabel().setText("正在解压：" + name);
                         String internalName = StringUtilities.removeRight(entryName, ".class");
                         TypeReference type = metadataSystem.lookupType(internalName);
                         extractClassToTextPane(type, name, path.toString(), null);
                     } else {
-                        getLabel().setText("Opening: " + name);
+                        getLabel().setText("正在打开：" + name);
                         try (InputStream in = state.jarFile.getInputStream(entry)) {
                             extractSimpleFileEntryToTextPane(in, name, path.toString());
                         }
@@ -329,27 +329,27 @@ public class Model extends JSplitPane {
                     throw new TooLargeFileException(file.length());
                 }
                 if (name.endsWith(".class")) {
-                    getLabel().setText("Extracting: " + name);
+                    getLabel().setText("正在解压：" + name);
                     TypeReference type = metadataSystem.lookupType(path.toString());
                     extractClassToTextPane(type, name, path.toString(), null);
                 } else {
-                    getLabel().setText("Opening: " + name);
+                    getLabel().setText("正在打开：" + name);
                     try (InputStream in = new FileInputStream(file)) {
                         extractSimpleFileEntryToTextPane(in, name, path.toString());
                     }
                 }
             }
 
-            getLabel().setText("Complete");
+            getLabel().setText("完成");
         } catch (FileEntryNotFoundException e) {
-            getLabel().setText("File not found: " + name);
+            getLabel().setText("找不到文件：" + name);
         } catch (FileIsBinaryException e) {
-            getLabel().setText("Binary resource: " + name);
+            getLabel().setText("二进制文件：" + name);
         } catch (TooLargeFileException e) {
-            getLabel().setText("File is too large: " + name + " - size: " + e.getReadableFileSize());
+            getLabel().setText("文件过大：" + name + " - 大小： " + e.getReadableFileSize());
         } catch (Exception e) {
-            getLabel().setText("Cannot open: " + name);
-            Luyten.showExceptionDialog("Unable to open file!", e);
+            getLabel().setText("无法打开：" + name);
+            Luyten.showExceptionDialog("无法打开文件！", e);
         } finally {
             bar.setVisible(false);
         }
@@ -494,12 +494,12 @@ public class Model extends JSplitPane {
         new Thread(() -> {
             try {
                 bar.setVisible(true);
-                getLabel().setText("Extracting: " + open.name);
+                getLabel().setText("正在解压：" + open.name);
                 open.invalidateContent();
                 open.decompile();
-                getLabel().setText("Complete");
+                getLabel().setText("完成");
             } catch (Exception e) {
-                getLabel().setText("Error, cannot update: " + open.name);
+                getLabel().setText("错误，无法更新：" + open.name);
             } finally {
                 bar.setVisible(false);
             }
@@ -654,7 +654,7 @@ public class Model extends JSplitPane {
                 if (file.getName().endsWith(".zip") || file.getName().endsWith(".jar")) {
                     JarFile jfile;
                     jfile = new JarFile(file);
-                    getLabel().setText("Loading: " + jfile.getName());
+                    getLabel().setText("正在加载：" + jfile.getName());
                     bar.setVisible(true);
 
                     JarEntryFilter jarEntryFilter = new JarEntryFilter(jfile);
@@ -672,14 +672,14 @@ public class Model extends JSplitPane {
                         state = new State(file.getCanonicalPath(), file, jfile, jarLoader);
                     }
                     open = true;
-                    getLabel().setText("Complete");
+                    getLabel().setText("完成");
                 } else {
                     TreeNodeUserObject topNodeUserObject = new TreeNodeUserObject(getName(file.getName()));
                     final DefaultMutableTreeNode top = new DefaultMutableTreeNode(topNodeUserObject);
                     tree.setModel(new DefaultTreeModel(top));
                     settings.setTypeLoader(new InputTypeLoader());
                     open = true;
-                    getLabel().setText("Complete");
+                    getLabel().setText("完成");
 
                     // open it automatically
                     new Thread(() -> {
@@ -697,11 +697,11 @@ public class Model extends JSplitPane {
                     }
                 }
             } catch (TooLargeFileException e) {
-                getLabel().setText("File is too large: " + file.getName() + " - size: " + e.getReadableFileSize());
+                getLabel().setText("文件过大：" + file.getName() + " - 大小： " + e.getReadableFileSize());
                 closeFile();
             } catch (Exception e1) {
                 Luyten.showExceptionDialog("Cannot open " + file.getName() + "!", e1);
-                getLabel().setText("Cannot open: " + file.getName());
+                getLabel().setText("无法打开：" + file.getName());
                 closeFile();
             } finally {
                 mainWindow.onFileLoadEnded(file, open);
@@ -875,7 +875,7 @@ public class Model extends JSplitPane {
             openedFile = file;
         }
         if (openedFile == null) {
-            getLabel().setText("No open file");
+            getLabel().setText("没有打开的文件");
         }
         return openedFile;
     }
@@ -891,7 +891,7 @@ public class Model extends JSplitPane {
             Luyten.showExceptionDialog("发生异常！", e1);
         }
         if (tabTitle == null) {
-            getLabel().setText("No open tab");
+            getLabel().setText("没有打开的标签页");
         }
         return tabTitle;
     }
@@ -909,7 +909,7 @@ public class Model extends JSplitPane {
             Luyten.showExceptionDialog("发生异常！", e1);
         }
         if (currentTextArea == null) {
-            getLabel().setText("No open tab");
+            getLabel().setText("没有打开的标签页");
         }
         return currentTextArea;
     }
@@ -952,7 +952,7 @@ public class Model extends JSplitPane {
             String destinationTypeStr = linkParts[1];
             try {
                 bar.setVisible(true);
-                getLabel().setText("Navigating: " + destinationTypeStr.replaceAll("/", "."));
+                getLabel().setText("导航至：" + destinationTypeStr.replaceAll("/", "."));
 
                 TypeReference type = metadataSystem.lookupType(destinationTypeStr);
                 if (type == null)
@@ -964,10 +964,10 @@ public class Model extends JSplitPane {
                 String tabTitle = typeDef.getName() + ".class";
                 extractClassToTextPane(typeDef, tabTitle, destinationTypeStr, uniqueStr);
 
-                getLabel().setText("Complete");
+                getLabel().setText("完成");
             } catch (Exception e) {
-                getLabel().setText("Cannot navigate: " + destinationTypeStr.replaceAll("/", "."));
-                Luyten.showExceptionDialog("Cannot Navigate!", e);
+                getLabel().setText("无法导航至：" + destinationTypeStr.replaceAll("/", "."));
+                Luyten.showExceptionDialog("无法导航！", e);
             } finally {
                 bar.setVisible(false);
             }
