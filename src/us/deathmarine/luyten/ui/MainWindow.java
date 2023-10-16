@@ -88,6 +88,27 @@ public class MainWindow extends JFrame {
                     return 0;
             }
         });
+
+        //鼠标中键关闭文件
+        MainWindow mainWindow = this;
+        jarsTabbedPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (SwingUtilities.isMiddleMouseButton(e)) {
+                    int tabIndex = jarsTabbedPane.indexAtLocation(e.getX(), e.getY());
+                    if (tabIndex !=-1){
+                        Model selectedModel = (Model) jarsTabbedPane.getComponentAt(tabIndex);
+                        String path = selectedModel.getOpenedFile().getAbsolutePath();
+                        selectedModel.closeFile();
+                        jarModels.remove(path);
+                        if (tabIndex == 0 && jarsTabbedPane.getTabCount() ==1){
+                            jarsTabbedPane.addTab(DEFAULT_TAB, new Model(mainWindow));
+                        }
+                        jarsTabbedPane.remove(tabIndex);
+                    }
+                }
+            }
+        });
         jarsTabbedPane.addTab(DEFAULT_TAB, new Model(this));
         this.getContentPane().add(jarsTabbedPane);
 
@@ -190,8 +211,12 @@ public class MainWindow extends JFrame {
     }
 
     public void onCloseFileMenu() {
-        this.getSelectedModel().closeFile();
-        jarModels.remove(getSelectedModel().getOpenedFile().getAbsolutePath());
+        //修复关闭页面时的NullPointerException
+        if (getSelectedModel().getOpenedFile() != null){
+            String path = getSelectedModel().getOpenedFile().getAbsolutePath();
+            this.getSelectedModel().closeFile();
+            jarModels.remove(path);
+        }
     }
 
     public void onSaveAsMenu() {
