@@ -17,11 +17,11 @@ import java.util.List;
  */
 public class DropListener implements DropTargetListener {
     private MainWindow mainWindow;
-    
+
     public DropListener(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
     }
-    
+
     @SuppressWarnings("unchecked")
     @Override
     public void drop(DropTargetDropEvent event) {
@@ -33,12 +33,10 @@ public class DropListener implements DropTargetListener {
                 try {
                     if (flavor.isFlavorJavaFileListType()) {
                         List<File> files = (List<File>) transferable.getTransferData(flavor);
-                        if (files.size() > 1) {
-                            event.rejectDrop();
-                            return;
-                        }
-                        if (files.size() == 1) {
-                            mainWindow.onFileDropped(files.get(0));
+                        if (!files.isEmpty()) {
+                            for (File file : files){
+                                mainWindow.onFileDropped(file);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -66,12 +64,10 @@ public class DropListener implements DropTargetListener {
                                 ex.printStackTrace();
                             }
                         }
-                        if (list.size() > 1) {
-                            event.rejectDrop();
-                            return;
-                        }
-                        if (list.size() == 1) {
-                            mainWindow.onFileDropped(list.get(0));
+                        if (!list.isEmpty()) {
+                            for (File file : list){
+                                mainWindow.onFileDropped(file);
+                            }
                         }
                         event.getDropTargetContext().dropComplete(true);
                         handled = true;
@@ -85,21 +81,21 @@ public class DropListener implements DropTargetListener {
                 event.rejectDrop();
             }
         }
-        
+
     }
-    
+
     @Override
     public void dragEnter(DropTargetDragEvent arg0) {
     }
-    
+
     @Override
     public void dragExit(DropTargetEvent arg0) {
     }
-    
+
     @Override
     public void dragOver(DropTargetDragEvent arg0) {
     }
-    
+
     @Override
     public void dropActionChanged(DropTargetDragEvent arg0) {
     }
