@@ -214,8 +214,15 @@ public class MainWindow extends JFrame {
         //修复关闭页面时的NullPointerException
         if (getSelectedModel().getOpenedFile() != null){
             String path = getSelectedModel().getOpenedFile().getAbsolutePath();
+            int index = jarsTabbedPane.getSelectedIndex();
             this.getSelectedModel().closeFile();
             jarModels.remove(path);
+
+            //同时移除文件标签里的对应tab
+            if (index == 0 && jarsTabbedPane.getTabCount() ==1){
+                jarsTabbedPane.addTab(DEFAULT_TAB, new Model(this));
+            }
+            jarsTabbedPane.remove(index);
         }
     }
 
